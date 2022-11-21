@@ -15,4 +15,13 @@ O := RingOfIntegers(K);
 p := 3;
 Decomposition(O,p); // check for the primes lying above p
 Decomposition(K,p);
-
+I := 2*O; // create ideal pO
+IsPrime(I);
+Factorization(I);
+J := Decomposition(O,2)[1][1]; // the second index is for the ramification index of J but we want only the ideal
+RamificationIndex(J);
+Valuation(I,J); // valuation using prime ideal J
+I1 := 5*O;
+Valuation(I1,J);
+quo< O | J >;
+ResidueField(O, J);
