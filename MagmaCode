@@ -1,6 +1,7 @@
 ChangeDirectory("/home/s3209784/Documents/MasterProject");
 GetCurrentDirectory();
 iload "magma_lecture9.m";
+Qx<x> := PolynomialRing(Rationals());
 f:= x^2+1;
 K := NumberField(f);
 Qy<y> := PolynomialRing(K);                        
