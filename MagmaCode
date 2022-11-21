@@ -24,4 +24,5 @@ Valuation(I,J); // valuation using prime ideal J
 I1 := 5*O;
 Valuation(I1,J);
 quo< O | J >;
-ResidueField(O, J);
+J1 := OMRepresentation(J);
+ResidueField(O, J1);
