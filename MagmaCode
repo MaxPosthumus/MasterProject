@@ -7,6 +7,6 @@ K := NumberField(f);
 Qy<y> := PolynomialRing(K);                        
 g := y^5+1;
 C:= HyperellipticCurve(g);              
-Cpts := Points(C: Bound := 10^4);
-Cpts;
+J := Jacobian(C);
+TorsionBound(J,5)
 
