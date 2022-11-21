@@ -9,4 +9,10 @@ g := y^5+1;
 C:= HyperellipticCurve(g);              
 J := Jacobian(C);
 TorsionBound(J,5);
+MaximalOrder(K);
+Integers(K); // all yield same result
+O := RingOfIntegers(K);
+p := 3;
+Decomposition(O,p); // check for the primes lying above p
+Decomposition(K,p);
 
