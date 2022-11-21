@@ -8,5 +8,5 @@ Qy<y> := PolynomialRing(K);
 g := y^5+1;
 C:= HyperellipticCurve(g);              
 J := Jacobian(C);
-TorsionBound(J,5)
+TorsionBound(J,5);
 
