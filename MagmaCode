@@ -47,3 +47,5 @@ Coef1 := [c*Prod : c in Coef];
 f1 := elt< Qy | Coef1 >; 
 f1;
 L in BadPrimes(C);
+I := Decomposition(O,3)[1][1];
+I in BadPrimes(C);
