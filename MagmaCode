@@ -35,3 +35,5 @@ Basis(K);
 IntegralBasis(K,O);
 Coef := Coefficients(g);
 Coef[1] in O;
+&and[ c in O : c in Coefficients(g)];
+
