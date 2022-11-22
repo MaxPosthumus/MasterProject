@@ -34,3 +34,4 @@ Completion(K,L);
 Basis(K);
 IntegralBasis(K,O);
 Coef := Coefficients(g);
+Coef[1] in O;
