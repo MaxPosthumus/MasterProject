@@ -46,4 +46,4 @@ Prod := &*[Denominator(c) : c in Coef];
 Coef1 := [c*Prod : c in Coef];
 f1 := elt< Qy | Coef1 >; 
 f1;
-
+L in BadPrimes(C);
