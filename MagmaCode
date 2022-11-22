@@ -41,5 +41,7 @@ K1 := FieldOfFractions(O);
 b in K1;
 Denominator(b);
 Numerator(b);
-b^-1 // multiplicative inverse of b
+b^-1; // multiplicative inverse of b
+&*[Denominator(c) : c in Coef];
+
 
