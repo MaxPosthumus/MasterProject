@@ -57,5 +57,6 @@ J3 := BaseChange(J,k);
 Random(J3);
 BaseField(J);
 P := C![0,1];
-
+Cpts := Points(C: Bound := 10^4);                                            
+Cpts; 
 
