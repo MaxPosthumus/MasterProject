@@ -3,7 +3,7 @@ GetCurrentDirectory();
 iload "magma_lecture9.m";
 Qx<x> := PolynomialRing(Rationals());
 f:= x^2+1;
-K := NumberField(f);
+K<a> := NumberField(f);
 Qy<y> := PolynomialRing(K);                        
 g := y^5+1;
 C:= HyperellipticCurve(g);              
