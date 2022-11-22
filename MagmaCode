@@ -26,7 +26,7 @@ Valuation(I1,L);
 quo< O | L >;
 //L1 := OMRepresentation(L);
 //ResidueField(O, L1);
-b := Random(K,3) // second value referes to maximal size of coefficients
+b := Random(K,3); // second value referes to maximal size of coefficients
 b in O;
 a in O;
 Numerator(b);
