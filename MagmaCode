@@ -57,10 +57,10 @@ J3 := BaseChange(J,k);
 Random(J3);
 BaseField(J);
 P := C![0,1];
-Cpts := Points(C: Bound := 10^4);                                            
+Cpts := Points(C: Bound := 1);                                            
 Cpts; 
-Points(J:Bound:=500);
-Q := Points(J:Bound:=500)[2];
-Height(Q);
-CanonicalHeight(Q);
-[Height(m) : m in Points(J:Bound:=500)];
+//Points(J:Bound:=1); this does not work for Jacobions over number fields
+//Q := Points(J:Bound:=500)[2];
+//Height(Q);
+//CanonicalHeight(Q);
+//[Height(m) : m in Points(J:Bound:=500)];
