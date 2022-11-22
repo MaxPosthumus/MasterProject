@@ -56,3 +56,6 @@ _,phi := ResidueClassField(Ov); // the mapping refered to above
 J3 := BaseChange(J,k);
 Random(J3);
 BaseField(J);
+P := C![0,1];
+
+
