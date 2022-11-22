@@ -63,3 +63,4 @@ Points(J:Bound:=500);
 Q := Points(J:Bound:=500)[2];
 Height(Q);
 CanonicalHeight(Q);
+[Height(m) : m in Points(J:Bound:=500)];
