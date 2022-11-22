@@ -42,6 +42,8 @@ b in K1;
 Denominator(b);
 Numerator(b);
 b^-1; // multiplicative inverse of b
-&*[Denominator(c) : c in Coef];
-
+Prod := &*[Denominator(c) : c in Coef];
+Coef1 := [c*Prod : c in Coef];
+f1 := elt< Qy | Coef1 >; 
+f1;
 
