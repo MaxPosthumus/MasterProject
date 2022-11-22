@@ -64,3 +64,4 @@ Cpts;
 //Height(Q);
 //CanonicalHeight(Q);
 //[Height(m) : m in Points(J:Bound:=500)];
+Evaluate(g,P);
