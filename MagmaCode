@@ -49,3 +49,6 @@ f1;
 L in BadPrimes(C);
 I := Decomposition(O,3)[1][1];
 I in BadPrimes(C);
+Kv := Completion(K,I);
+Ov := RingOfIntegers(Kv); // note that ring of integers of complete field is the set of elements with absolute value \geq 1, i.e. the valuation ring
+k := ResidueClassField(Ov); // note that mapping that is also included in command in now ignored, i.e. k is only defined as the field
