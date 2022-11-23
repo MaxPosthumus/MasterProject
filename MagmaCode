@@ -65,3 +65,5 @@ Cpts;
 //CanonicalHeight(Q);
 //[Height(m) : m in Points(J:Bound:=500)];
 Evaluate(g,P);
+Pinf := PointsAtInfinity(C)[1];
+Height(J!(P-Pinf));
