@@ -67,3 +67,46 @@ Cpts;
 Evaluate(g,P);
 Pinf := PointsAtInfinity(C)[1];
 Height(J!(P-Pinf));
+
+
+I := [];
+for p in PrimesInInterval(2,20) do 
+	if #Decomposition(O,p) eq 1 then
+		Append(~I,Decomposition(O,p)[1][1]);
+	else 
+	Append(~I,Decomposition(O,p)[1][1]);
+	Append(~I,Decomposition(O,p)[2][1]);
+	end if;
+end for;
+
+I := Set(I) diff Set(BadPrimes(C));
+Inv := [];
+for i in I do
+	Kp := Completion(K,i);
+	Op := RingOfIntegers(Kp);
+	k := ResidueClassField(Op);
+	Jk := BaseChange(J,k);
+	G := AbelianGroup(Jk);
+	Append(~Inv,Invariants(G));
+end for;
+
+B := TorsionBound(J,10);
+b, pos := Min(Min(Inv)); 
+b lt B;	
+L := [];
+for i := 1 to #Inv do 
+	v := [x : x in Inv[i] | x/B notin Integers()];
+	if #v eq #Inv[i] then
+		Append(~L,v);
+	end if;
+end for;	
+IsEmpty(L);			
+Inv := [[3, 60], [666]];
+B := 18;
+Bound := function(Inv,L)
+	if IsEmpty(L) then
+		return B;
+	else 
+		return B/Min(Min(L));
+	end if;	
+end function;
