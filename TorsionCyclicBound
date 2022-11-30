@@ -1,0 +1,52 @@
+fun := function(J,n)
+	B := TorsionBound(J,n);
+	C := Curve(J);
+	K := CoefficientRing(J);
+	OK := Integers(K);
+	f, h := HyperellipticPolynomials(C);
+	disc := Discriminant(C);
+	cofs := {c : c in Eltseq(h) cat Eltseq(f)};
+	pl := &cat[[e[1] : e in Decomposition(OK,p) | e[2] lt p-1] : 
+		p in PrimesInInterval(3,200)];
+	pl := [p : p in pl | Valuation(disc, p) eq 0 and 
+	forall{c : c in cofs | Valuation(c, p) ge 0}];
+	Inv := [];
+	for i := 1 to Min(10, #pl) do
+		p := pl[i];
+		F, red := ResidueClassField(p);
+		JF := BaseExtend(J, map<K -> F | a :-> red(a)>);
+		G := AbelianGroup(JF); // note that this only works for curves of form y^2=f(x) with odd degree f
+		Append(~Inv,Invariants(G));
+	end for;
+	if &and[B/Max(Inv[i]) in Integers() : i in [1..#Inv]] or &and[#Inv[i] ne  1 : i in [1..#Inv]] then 
+		return B;
+	else
+		v := [];
+		w := [];
+		wset := {};
+		for i:= 1 to #Inv do
+			if Min(Inv[i]) eq Max (Inv[i]) then
+				v1 := [x : x in Divisors(Max(Inv[i]))];
+				w1 := [m : m in v1 | m le B];
+			else
+				v1 := [x : x in Divisors(Max(Inv[i])) | Gcd(x,Min(Inv[i])) eq 1];
+				w1 := [Min(Inv[i])*m : m in v1 | Min(Inv[i])*m le B] cat
+					[x : x in Divisors(Max(Inv[i])) | x le B];
+			end if;
+			Append(~v,v1);
+			Append(~w,w1);
+			wset := wset join Set(w1);
+		end for;
+		
+		if &and[IsEmpty(w[i]) eq false : i in [1..#w]] then 
+			m := Max(wset);
+			while &and[m eq Max(w[i]) : i in [1..#w]] eq false and m ne Min(wset) do
+				wset := wset diff {m};
+				m := Max(wset);
+			end while;
+			return(m);
+		else 
+			return(1);
+		end if;
+	end if;
+end function;	
