@@ -1,0 +1,92 @@
+// The following represents the unordered partitions of {1..6}
+// into two sets of size 3.
+partitions := [ <[6,5,4],[3,2,1]>, <[6,5,3],[4,2,1]>, <[6,4,3],[5,2,1]>,
+                <[6,2,1],[5,4,3]>, <[6,5,2],[4,3,1]>, <[6,4,2],[5,3,1]>,
+                <[6,3,1],[5,4,2]>, <[6,3,2],[5,4,1]>, <[6,4,1],[5,3,2]>,
+                <[6,5,1],[4,3,2]> ];
+
+function HCinfinity(f : Steps := 10, Scale := 1)
+  // Find a bound for the local height constant at infinity using the approach in
+  // M. Stoll: On the height constant for curves of genus two,
+  //   Acta Arith. 90, 183-201 (1999)
+  // as improved by
+  // J.S. Müller, M. Stoll: Canonical heights on genus two Jacobians,
+  //   Algebra & Number Theory 10, No. 10, 2153-2234 (2016).
+  //
+  // f: the polynomial on the right hand side of the curve equation
+  //    (which must be in "simple" form, i.e., without a term h(x) y)
+  // Steps: the number of refinement steps used for computing the bound on \mu
+  // Scale: the factor by which the fourth Kummer coordinate is scaled
+  //
+  // Returns three values:
+  // + a bound on the local height difference at infinity
+  // + the bound on \epsilon coming from [Stoll 1999]
+  // + the roots of f
+  H := hom< K -> ComplexField() | Conjugates(K.1)[Signature(K)+1]>;
+  P<z> := PolynomialRing(ComplexField());
+  fcomp := elt<P | [H(c) : c in Coefficients(f)]>;
+  roots := [r[1] : r in Roots(fcomp, ComplexField())];
+  lcf := LeadingCoefficient(fcomp);
+  amat := ZeroMatrix(RealField(), 4, 10);    // matrix of |a_{i,{S,S'}}|
+  bmat := ZeroMatrix(ComplexField(), 10, 4); // matrix of b_{{S,S'},j}
+  // Fill matrices with coefficients; see Formulas 10.2 and 10.3 in [Stoll 1999]
+  // bmat[i,4] is multiplied by Scale (is originially = 1)
+  // and amat[4,i] is divided by Scale^2.
+  for j := 1 to 10 do
+    pi := partitions[j];
+    p1 := pi[1]; p2 := pi[2];
+    if Degree(f) eq 6 then
+      u1 := roots[p1[1]] + roots[p1[2]];
+      v1 := roots[p1[1]]*roots[p1[2]];
+      s := [u1 + roots[p1[3]], u1*roots[p1[3]] + v1, v1*roots[p1[3]]];
+      s0 := 1;
+      res := &*[roots[j1]-roots[j2] : j1 in p1, j2 in p2] * lcf^3;
+    else
+      s := [1, roots[p1[2]]+roots[p1[3]], roots[p1[2]]*roots[p1[3]]];
+      s0 := 0;
+      res := &*[roots[j1]-roots[j2] : j1 in p1[[2,3]], j2 in p2] * lcf^3;
+    end if;
+    u2 := roots[p2[1]] + roots[p2[2]];
+    v2 := roots[p2[1]]*roots[p2[2]];
+    t := [u2 + roots[p2[3]], u2*roots[p2[3]] + v2, v2*roots[p2[3]]];
+    bmat[j,1] := lcf*(s[3]*t[1] + s[1]*t[3]);
+    bmat[j,2] := -lcf*(s[3] + s0*t[3]);
+    bmat[j,3] := lcf*(s[2] + s0*t[2]);
+    bmat[j,4] := Scale;
+    rr := Modulus(lcf/(4*res));
+    amat[1,j] := rr*Modulus(s[1]-s0*t[1]);
+    amat[2,j] := rr*Modulus(s[3]-s0*t[3] + s[2]*t[1]-s[1]*t[2]);
+    amat[3,j] := rr*Modulus(s[3]*t[2]-s[2]*t[3]);
+    amat[4,j] := lcf^2*rr*Modulus(s[1]*s[3]^2*t[2] - s0^2*s[2]*t[1]*t[3]^2
+                                  + s[1]*s[2]*t[1]*t[2]*(s[3] - s0*t[3])
+                                  - s[3]*t[3]*(s[1]*s[2] - s0^2*t[1]*t[2])
+                                  - s[1]*t[1]*(s[2]^2*t[3] - s0*s[3]*t[2]^2)
+                                  - s[1]^2*s[3]*t[2]^2 + s0*s[2]^2*t[1]^2*t[3]
+                                  + 4*s[1]*s[3]*t[1]*t[3]*(s[1] - s0*t[1])
+                                  + s[2]*t[2]*(s[1]^2*t[3] - s0*s[3]*t[1]^2)
+                                  - s0*(s[3]^2*t[1]*t[2] - t[3]^2*s[1]*s[2])
+                                  + s0*(4*s[3]*t[3]*(s[3] - s0*t[3])
+                                        + 4*s[2]*t[2]*(s[3]*t[2] - s[2]*t[3])
+                                        - 3*s[3]*t[3]*(s[2]*t[1] - s[1]*t[2])))/Scale^2;
+  end for;
+  eseq := [[1,e2,e3,e4] : e2, e3, e4 in [1,-1]];
+  function step(ds)
+    // This is the function f from [Müller-Stoll]
+    bvec := Vector([Sqrt(Max([Modulus(&+[bmat[i,j]*es[j]*ds[j] : j in [1..4]]) : es in eseq]))
+                     : i in [1..#partitions]]);
+    return [Sqrt((amat[k], bvec)) : k in [1..4]];
+  end function;
+  // Initialize data for the iteration. We do the first step right away.
+  bn := step([RealField()| 1, 1, 1, 1]);
+  bnabs := Max([Abs(b) : b in bn]);
+  gamma := 4*Log(bnabs);
+  sum := gamma;
+  bn := [b/bnabs : b in bn];
+  for n := 2 to Steps do
+    bn := step(bn);
+    bnabs := Max([Abs(b) : b in bn]);
+    sum +:= 4^n*Log(bnabs);
+    bn := [b/bnabs : b in bn];
+  end for;
+  return sum/(4^Steps-1), gamma, roots;
+end function;
