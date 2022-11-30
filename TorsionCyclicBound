@@ -18,7 +18,7 @@ fun := function(J,n)
 		G := AbelianGroup(JF); // note that this only works for curves of form y^2=f(x) with odd degree f
 		Append(~Inv,Invariants(G));
 	end for;
-	if &and[B/Max(Inv[i]) in Integers() : i in [1..#Inv]] or &and[#Inv[i] ne  1 : i in [1..#Inv]] then 
+	if &and[B/Max(Inv[i]) in Integers() : i in [1..#Inv]] or &and[#Inv[i] eq  1 : i in [1..#Inv]] eq false then 
 		return B;
 	else
 		v := [];
