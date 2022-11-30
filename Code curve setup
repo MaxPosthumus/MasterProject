@@ -1,0 +1,9 @@
+Qx<x> := PolynomialRing(Rationals());
+f := x^2+2;
+K<a> := NumberField(f);
+Qy<y> := PolynomialRing(K);
+g := y^5+a*y;
+C := HyperellipticCurve(g,0);
+J := Jacobian(C);
+fun(J,10);
+TorsionBound(J,10);
