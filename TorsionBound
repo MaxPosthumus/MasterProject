@@ -1,0 +1,37 @@
+fun := function(J,n)
+	C := Curve(J);
+	f, h := HyperellipticPolynomials(C);
+	K := CoefficientRing(C);
+	OK := Integers(K);
+	disc := Discriminant(C);
+	cofs := {c : c in Eltseq(h) cat Eltseq(f)};
+	pl := &cat[[e[1] : e in Decomposition(OK, p) | e[2] lt p-1] : p in PrimesInInterval(3, 200)];
+        pl := [p : p in pl | Valuation(disc, p) eq 0 and forall{c : c in cofs | Valuation(c, p) ge 0}];
+        Sort(~pl, func<p1, p2 | Norm(p1)-Norm(p2)>);
+	s := 1;
+	bound := 0;
+	//plist := [];
+      	factors := [];
+	for i := s to Min(n, #pl) do
+       		p := pl[i];
+        	F, red := ResidueClassField(p);
+        	JF := BaseExtend(J, map<K -> F | a :-> red(a)>);
+        	size := #JF;
+        	bound := Gcd(bound, size);
+		group := AbelianGroup(JF);
+        	//Append(~plist, [* p, size, JF, red *]);
+		Append(~factors, Invariants(group));
+		if bound eq 1 then break; end if;
+	end for;
+	inv_factors := [];
+	if IsEmpty(factors) then 
+      		N := 0;
+    	else
+      		N := Min([#t : t in factors]);
+    	end if;
+    	for i := 1 to N do
+      		inv_factors[i] := GCD([t[#t-N+i] : t in factors]);
+    	end for;
+	bd := IsEmpty(inv_factors) select 1 else &*inv_factors;
+	return(bd);
+end function;
