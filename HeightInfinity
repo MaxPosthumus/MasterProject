@@ -1,3 +1,14 @@
+real, complex := Signature(K)
+gamma := 0;
+for i in [1..Degree(K)] do
+	gamma +:= HCinfinity(g,i);
+end for;
+OK := Integers(K);
+I := ideal<OK | Coefficients(g)>;
+H := 4/3*Degree(K)*Log(2)-2*Log(Norm(I)) + 1/3*Log(Norm(Discriminant(g)))+1/3*gamma;
+
+
+
 // The following represents the unordered partitions of {1..6}
 // into two sets of size 3.
 partitions := [ <[6,5,4],[3,2,1]>, <[6,5,3],[4,2,1]>, <[6,4,3],[5,2,1]>,
@@ -5,7 +16,7 @@ partitions := [ <[6,5,4],[3,2,1]>, <[6,5,3],[4,2,1]>, <[6,4,3],[5,2,1]>,
                 <[6,3,1],[5,4,2]>, <[6,3,2],[5,4,1]>, <[6,4,1],[5,3,2]>,
                 <[6,5,1],[4,3,2]> ];
 
-function HCinfinity(f : Steps := 10, Scale := 1)
+function HCinfinity(f,k : Steps := 10, Scale := 1)
   // Find a bound for the local height constant at infinity using the approach in
   // M. Stoll: On the height constant for curves of genus two,
   //   Acta Arith. 90, 183-201 (1999)
@@ -22,7 +33,7 @@ function HCinfinity(f : Steps := 10, Scale := 1)
   // + a bound on the local height difference at infinity
   // + the bound on \epsilon coming from [Stoll 1999]
   // + the roots of f
-  H := hom< K -> ComplexField() | Conjugates(K.1)[Signature(K)+1]>;
+  H := hom< K -> ComplexField() | Conjugates(K.1)[k]>;
   P<z> := PolynomialRing(ComplexField());
   fcomp := elt<P | [H(c) : c in Coefficients(f)]>;
   roots := [r[1] : r in Roots(fcomp, ComplexField())];
