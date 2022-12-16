@@ -1,0 +1,49 @@
+////////////////////////////////////////////////////////////////////////
+//                                                                    //
+//  Example number of points of jacobian of hyperelliptic curves of   //
+//  genus 2 over a real quadratic  numberfield                        //
+//                                                                    //
+////////////////////////////////////////////////////////////////////////
+
+ChangeDirectory("/home/s3209784/Documents/MasterProject");
+load "g2c_curves.m"; //loading the genus 2 curves over Q of the LMFDB database
+import "TorsionboundNumberfield" : TorsionBoundNum; 
+
+n := 10; //selecting the first n curves from the database
+datasub := data[1..n];
+Qx<x> := PolynomialRing(Rationals());
+f := x^2-2; //example for real quadratic numberfield
+K<alpha> := NumberField(f);
+Qy<y> := PolynomialRing(K);
+Curves := [HyperellipticCurve(Qy![c : c in r[1]], Qy![c : c in r[2]]): r in datasub];
+//CurvesSimp := [SimplifiedModel(c) : c in Curves]; this is not even needed
+J := [Jacobian(c) : c in Curves];
+a := [TorsionBoundNum(j,20) : j in J]; //improved torsion bound for curves over numberfields
+b := [TorsionBound(j,20) : j in J]; //existing torsion bound for curves over numberfields
+vec := [a[i] lt b[i] : i in [1..#a]]; //we check whether the number of points computed by the former is less than that 
+// computed by the latter. 
+lab := [labels[i] : i in [1..#a] | vec[i] eq true]; //these labels correspond to the curves for which the new bound performes better
+#lab;
+// if we set n = 1000, then #lab = 411 implying that for 411 curves the new bound performes better
+
+
+//Now we want to check whether TorsionBoundNum yields as least as many points over K than the amount of points we know there are over Q
+
+CurvesRat := [HyperellipticCurve(Qx![c : c in r[1]], Qx![c : c in r[2]]): r in datasub];
+CurvesRatSimp := [SimplifiedModel(c) : c in CurvesRat];
+JRatSimp := [Jacobian(c) : c in CurvesRatSimp];
+d := [#TorsionSubgroup(j) : j in JRatSimp]; //compute the number of torsion points for the Jacobians over Q (note that TorsionSubgroup requires curves of the form y^2=f(x))
+vec := [a[i] gt d[i] : i in [1..#a]];
+labnew := [labels[i] : i in [1..#a] | vec[i] eq true];
+#labnew;
+// if we set n = 1000, then #labnew = 303 implying that for 303 curves there are probably more points of the Jacobian over K
+
+u := [a[i] lt d[i] : i in [1..#a]];
+Set(u); //Sanity check: we indeed get Set = {false} which implies that there are always at least as many points
+//over rationals as over K
+
+//Not so useful statistics:
+Comp1 := Set(lab) meet Set(labnew); //#Comp1 = 176, i.e. for 176 curves there are probably more points over K than over Q and TorsionBoundNum
+// performes better than TorsionBound
+Comp2 := Set(lab) join Set(labnew); //#Comp2 = 538, i.e. for 538 curves there are probably more points over K than over Q  or TorsionBoundNum
+// performes better than TorsionBound

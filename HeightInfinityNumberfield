@@ -1,0 +1,105 @@
+////////////////////////////////////////////////////////////////////////
+//                                                                    //
+//  Height constant at infinity for hyperelliptic curves of genus 2    //
+//  over a number fields                          	              //
+//                                                                    //
+////////////////////////////////////////////////////////////////////////
+
+// HCinfinityNum is basically the function from height.m with the addition that it now also works
+// for curves of numberfields. In particular we use the bound in Stoll (1999) for complex embeddings of
+// number fields and the updated bound as described in Muller-Stoll (2016) for real embeddings.
+// Moreover, for all embeddings the function as in lemma 16.1 is used to improve the bound. 
+
+
+function HCinfinityNum(f,k : Steps := 10) // the variable k represents which embedding is used. In partciular, it selects
+// the k-th entry from conjugates(K.1). 
+ partitions := [ <[6,5,4],[3,2,1]>, <[6,5,3],[4,2,1]>, <[6,4,3],[5,2,1]>,
+                <[6,2,1],[5,4,3]>, <[6,5,2],[4,3,1]>, <[6,4,2],[5,3,1]>,
+                <[6,3,1],[5,4,2]>, <[6,3,2],[5,4,1]>, <[6,4,1],[5,3,2]>,
+                <[6,5,1],[4,3,2]> ];
+  K := CoefficientRing(f);
+  real, complex := Signature(K); //determine the number of real and complex embeddings (note that complex embedinggs come in conjugate pairs)
+  H := hom< K -> ComplexField() | Conjugates(K.1)[k]>; //specify the embedding
+  P<z> := PolynomialRing(ComplexField());
+  fcomp := elt<P | [H(c) : c in Coefficients(f)]>; //embed the coefficients of f into C using the embedding above
+  roots := [r[1] : r in Roots(fcomp, ComplexField())]; 
+  lcf := LeadingCoefficient(fcomp);
+  amat := ZeroMatrix(RealField(), 4, 10);    // matrix of |a_{i,{S,S'}}|
+  bmat := ZeroMatrix(ComplexField(), 10, 4); // matrix of b_{{S,S'},j}
+  for j := 1 to 10 do
+    pi := partitions[j];
+    p1 := pi[1]; p2 := pi[2];
+    if Degree(f) eq 6 then
+      u1 := roots[p1[1]] + roots[p1[2]];
+      v1 := roots[p1[1]]*roots[p1[2]];
+      s := [u1 + roots[p1[3]], u1*roots[p1[3]] + v1, v1*roots[p1[3]]];
+      s0 := 1;
+      res := &*[roots[j1]-roots[j2] : j1 in p1, j2 in p2] * lcf^3;
+    else
+      s := [1, roots[p1[2]]+roots[p1[3]], roots[p1[2]]*roots[p1[3]]];
+      s0 := 0;
+      res := &*[roots[j1]-roots[j2] : j1 in p1[[2,3]], j2 in p2] * lcf^3;
+    end if;
+    u2 := roots[p2[1]] + roots[p2[2]];
+    v2 := roots[p2[1]]*roots[p2[2]];
+    t := [u2 + roots[p2[3]], u2*roots[p2[3]] + v2, v2*roots[p2[3]]];
+    bmat[j,1] := lcf*(s[3]*t[1] + s[1]*t[3]);
+    bmat[j,2] := -lcf*(s[3] + s0*t[3]);
+    bmat[j,3] := lcf*(s[2] + s0*t[2]);
+    bmat[j,4] := 1;
+    rr := Modulus(lcf/(4*res));
+    amat[1,j] := rr*Modulus(s[1]-s0*t[1]);
+    amat[2,j] := rr*Modulus(s[3]-s0*t[3] + s[2]*t[1]-s[1]*t[2]);
+    amat[3,j] := rr*Modulus(s[3]*t[2]-s[2]*t[3]);
+    amat[4,j] := lcf^2*rr*Modulus(s[1]*s[3]^2*t[2] - s0^2*s[2]*t[1]*t[3]^2
+                                  + s[1]*s[2]*t[1]*t[2]*(s[3] - s0*t[3])
+                                  - s[3]*t[3]*(s[1]*s[2] - s0^2*t[1]*t[2])
+                                  - s[1]*t[1]*(s[2]^2*t[3] - s0*s[3]*t[2]^2)
+                                  - s[1]^2*s[3]*t[2]^2 + s0*s[2]^2*t[1]^2*t[3]
+                                  + 4*s[1]*s[3]*t[1]*t[3]*(s[1] - s0*t[1])
+                                  + s[2]*t[2]*(s[1]^2*t[3] - s0*s[3]*t[1]^2)
+                                  - s0*(s[3]^2*t[1]*t[2] - t[3]^2*s[1]*s[2])
+                                  + s0*(4*s[3]*t[3]*(s[3] - s0*t[3])
+                                        + 4*s[2]*t[2]*(s[3]*t[2] - s[2]*t[3])
+                                        - 3*s[3]*t[3]*(s[2]*t[1] - s[1]*t[2])));
+  end for;
+  eseq := [[1,e2,e3,e4] : e2, e3, e4 in [1,-1]];
+  function stepReal(ds) // step function for real places
+    bvec := Vector([Sqrt(Max([Modulus(&+[bmat[i,j]*es[j]*ds[j] : j in [1..4]]) : es in eseq]))
+                     : i in [1..#partitions]]);
+    return [Sqrt((amat[k], bvec)) : k in [1..4]];
+  end function;
+  function stepComplex(ds) // step function for complex places, note that for ds = (1,1,1,1) this will yield exactly the same bound
+   // as in Stoll (1999)
+    bvec := Vector([Sqrt(&+[Modulus(bmat[i,j])*ds[j] : j in [1..4]])
+                     : i in [1..#partitions]]);
+    return [Sqrt((amat[k], bvec)) : k in [1..4]];
+  end function;
+  if k gt real then //check whether the embedding is complex
+  bn := stepComplex([RealField()| 1, 1, 1, 1]);
+  bnabs := Max([Abs(b) : b in bn]);
+  gamma := 4*Log(bnabs);
+  sum := gamma;
+  	bn := [b/bnabs : b in bn];
+  	for n := 2 to Steps do
+   		bn := stepComplex(bn);
+	bnabs := Max([Abs(b) : b in bn]);
+    		sum +:= 4^n*Log(bnabs);
+    		bn := [b/bnabs : b in bn];
+  		end for;
+  	return sum/(4^Steps-1); // this procedure is completely analogous as described in lemma 16.1 in Muller-Stoll(2016)
+ else 
+  bn := stepReal([RealField()| 1, 1, 1, 1]);
+  bnabs := Max([Abs(b) : b in bn]);
+  gamma := 4*Log(bnabs);
+  sum := gamma;
+  	bn := [b/bnabs : b in bn];
+  	for n := 2 to Steps do
+   		bn := stepReal(bn);
+   		bnabs := Max([Abs(b) : b in bn]);
+   		sum +:= 4^n*Log(bnabs);
+   		bn := [b/bnabs : b in bn];
+  		end for;
+return sum/(4^Steps-1);
+end if;
+end function;
